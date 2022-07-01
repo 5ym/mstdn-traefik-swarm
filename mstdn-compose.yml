@@ -1,0 +1,66 @@
+version: '3.8'
+services:
+  mstdn-db:
+    image: postgres:9.6-alpine
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+    volumes:
+      - ./mstdn/postgres:/var/lib/postgresql/data
+  mstdn-redis:
+    image: redis:5.0-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    volumes:
+      - ./mstdn/redis:/data
+  mstdn:
+    image: tootsuite/mastodon
+    env_file: mstdn/.env.production
+    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
+    networks:
+      - default
+      - main_default
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:3000/health || exit 1"]
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./mstdn/public/system:/mastodon/public/system
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.mstdn.rule=Host(`m.daco.dev`)"
+        - "traefik.http.routers.mstdn.tls.certresolver=myresolver"
+        - "traefik.http.services.mstdn.loadbalancer.server.port=3000"
+  mstdn-streaming:
+    image: tootsuite/mastodon
+    env_file: mstdn/.env.production
+    command: node ./streaming
+    networks:
+      - default
+      - main_default
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
+    depends_on:
+      - db
+      - redis
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.mstdn-streaming.rule=Host(`m.daco.dev`) && PathPrefix(`/api/v1/streaming`)"
+        - "traefik.http.routers.mstdn-streaming.tls.certresolver=myresolver"
+        - "traefik.http.services.mstdn-streaming.loadbalancer.server.port=4000"
+  sidekiq:
+    image: tootsuite/mastodon
+    env_file: mstdn/.env.production
+    command: bundle exec sidekiq
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./mstdn/public/system:/mastodon/public/system
+
+networks:
+  main_default:
+    external: true
+    name: main_default
