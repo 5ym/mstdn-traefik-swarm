@@ -1,12 +1,12 @@
 version: '3.8'
 services:
-  mstdn-db:
+  db:
     image: postgres:9.6-alpine
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
     volumes:
       - ./mstdn/postgres:/var/lib/postgresql/data
-  mstdn-redis:
+  redis:
     image: redis:5.0-alpine
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
