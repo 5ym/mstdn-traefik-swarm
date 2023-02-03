@@ -1,5 +1,6 @@
 #!/bin/sh
 
+mkdir -p ~/docker && cd ~/docker
 mkdir mstdn
 curl https://raw.githubusercontent.com/mastodon/mastodon/main/.env.production.sample > mstdn/.env.production
 curl -O https://raw.githubusercontent.com/5ym/mstdn-traefik-swarm/main/mstdn-compose.yml
