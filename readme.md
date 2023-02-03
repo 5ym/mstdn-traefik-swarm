@@ -2,6 +2,7 @@
 
 ## how to use
 
+`~/docker`にダウンロードされます
 setup and deploy
 
 ```sh
