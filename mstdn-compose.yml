@@ -23,9 +23,6 @@ services:
       - main_default
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:3000/health || exit 1"]
-    depends_on:
-      - db
-      - redis
     volumes:
       - ./mstdn/system:/mastodon/public/system
     deploy:
@@ -43,9 +40,6 @@ services:
       - main_default
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
-    depends_on:
-      - db
-      - redis
     deploy:
       labels:
         - "traefik.enable=true"
@@ -56,9 +50,6 @@ services:
     image: tootsuite/mastodon
     env_file: mstdn/.env.production
     command: bundle exec sidekiq
-    depends_on:
-      - db
-      - redis
     volumes:
       - ./mstdn/system:/mastodon/public/system
 
