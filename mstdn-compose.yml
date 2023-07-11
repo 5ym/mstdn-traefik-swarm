@@ -1,11 +1,11 @@
 version: '3.8'
 services:
   db:
-    image: postgres:alpine
+    image: postgres:14-alpine
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
     volumes:
-      - ./mstdn/postgres:/var/lib/postgresql/data
+      - ./mstdn/db:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: mstdn
   redis:
@@ -27,11 +27,11 @@ services:
       - db
       - redis
     volumes:
-      - ./mstdn/public/system:/mastodon/public/system
+      - ./mstdn/system:/mastodon/public/system
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.mstdn.rule=Host(`m.daco.dev`)"
+        - "traefik.http.routers.mstdn.rule=Host(`m.doany.io`)"
         - "traefik.http.routers.mstdn.tls.certresolver=myresolver"
         - "traefik.http.services.mstdn.loadbalancer.server.port=3000"
   mstdn-streaming:
@@ -49,7 +49,7 @@ services:
     deploy:
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.mstdn-streaming.rule=Host(`m.daco.dev`) && PathPrefix(`/api/v1/streaming`)"
+        - "traefik.http.routers.mstdn-streaming.rule=Host(`m.doany.io`) && PathPrefix(`/api/v1/streaming`)"
         - "traefik.http.routers.mstdn-streaming.tls.certresolver=myresolver"
         - "traefik.http.services.mstdn-streaming.loadbalancer.server.port=4000"
   sidekiq:
@@ -60,7 +60,7 @@ services:
       - db
       - redis
     volumes:
-      - ./mstdn/public/system:/mastodon/public/system
+      - ./mstdn/system:/mastodon/public/system
 
 networks:
   main_default:
