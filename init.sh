@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mkdir mstdn
+mkdir -p mstdn/db mstdn/redis mstdn/system
 curl https://raw.githubusercontent.com/mastodon/mastodon/main/.env.production.sample > mstdn/.env.production
 curl -O https://raw.githubusercontent.com/5ym/mstdn-traefik-swarm/main/mstdn-compose.yml
 echo 'customize compose file'
